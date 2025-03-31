@@ -49,11 +49,31 @@ export default function UserRoutes(app) {
     res.sendStatus(200);
    };
 
+
    const profile = async (req, res) => {
-    if (!req.session || !req.session["currentUser"]) {
+    let { userId } = req.params;
+
+    if (userId === "current") {
+      const currentUser = await req.session["currentUser"];
+
+    if (!!currentUser) {
       return res.status(401).json({ error: "No active session. Please log in." });
     }
-    res.json(req.session["currentUser"]);
+    userId = currentUser._id;
+  }
+
+  try {
+    const userProfile = await dao.findUserById(userId);
+
+    if (!userProfile) {
+      return res.status(404).json({ error: "User Not Found" });
+    }
+    res.json(userProfile);
+  } catch (error) {
+    return res.status(500).json({ error: "Internal Service Problem" });
+  }
+
+   
   };
   
 
@@ -93,5 +113,5 @@ export default function UserRoutes(app) {
   app.post("/api/users/signin", signin);
   app.post("/api/users/signout", signout);
 
-  app.get("/api/users/profile", profile);
+  app.get("/api/users/:userId/profile", profile);
 }
