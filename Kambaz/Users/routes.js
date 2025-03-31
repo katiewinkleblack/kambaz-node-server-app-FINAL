@@ -5,7 +5,6 @@ import * as enrollmentsDao from "../Enrollments/dao.js";
 
 export default function UserRoutes(app) {
  
-
   const updateUser = async (req, res) => { 
     const userId = req.params.userId;
     const userUpdates = req.body;
@@ -48,16 +47,13 @@ export default function UserRoutes(app) {
 
 
    const profile = async (req, res) => {
-    let { userId } = req.params;
-
-    if (userId === "current") {
       const currentUser = await req.session["currentUser"];
 
     if (!currentUser) {
+      console.log("ERROR")
       return res.status(401).json({ error: "No active session. Please log in." });
+    
     }
-    userId = currentUser._id;
-  }
 
   try {
     const userProfile = await dao.findUserById(userId);
@@ -110,5 +106,5 @@ export default function UserRoutes(app) {
   app.post("/api/users/signin", signin);
   app.post("/api/users/signout", signout);
 
-  app.get("/api/users/:userId/profile", profile);
+  app.post("/api/users/profile", profile);
 }
