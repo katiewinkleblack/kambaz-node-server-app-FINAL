@@ -4,10 +4,7 @@ import * as courseDao from "../Courses/dao.js";
 import * as enrollmentsDao from "../Enrollments/dao.js";
 
 export default function UserRoutes(app) {
-  const createUser = (req, res) => { };
-  const deleteUser = (req, res) => { };
-  const findAllUsers = (req, res) => { };
-  const findUserById = (req, res) => { };
+ 
 
   const updateUser = async (req, res) => { 
     const userId = req.params.userId;
@@ -56,7 +53,7 @@ export default function UserRoutes(app) {
     if (userId === "current") {
       const currentUser = await req.session["currentUser"];
 
-    if (!!currentUser) {
+    if (!currentUser) {
       return res.status(401).json({ error: "No active session. Please log in." });
     }
     userId = currentUser._id;
