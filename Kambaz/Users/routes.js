@@ -101,11 +101,11 @@ export default function UserRoutes(app) {
 
   app.get("/api/users/:userId/courses", findCoursesForEnrolledUser);
 
-  app.post("/api/users", createUser);
-  app.get("/api/users", findAllUsers);
-  app.get("/api/users/:userId", findUserById);
+  app.post("/api/users", dao.createUser);
+  app.get("/api/users", dao.findAllUsers);
+  app.get("/api/users/:userId", dao.findUserById);
   app.put("/api/users/:userId", updateUser);
-  app.delete("/api/users/:userId", deleteUser);
+  app.delete("/api/users/:userId", dao.deleteUser);
   app.post("/api/users/signup", signup);
   app.post("/api/users/signin", signin);
   app.post("/api/users/signout", signout);
