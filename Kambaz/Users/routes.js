@@ -56,7 +56,7 @@ export default function UserRoutes(app) {
     }
 
   try {
-    const userProfile = await dao.findUserById(userId);
+    const userProfile = await dao.findUserById(currentUser._id);
 
     if (!userProfile) {
       return res.status(404).json({ error: "User Not Found" });
