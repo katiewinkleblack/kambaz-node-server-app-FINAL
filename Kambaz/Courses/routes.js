@@ -13,7 +13,7 @@ export default function CourseRoutes(app) {
     res.send(courses);
   });
 
-app.get("api/users.:userId/courses", (req, res) => {
+app.get("api/users/:userId/courses", (req, res) => {
     const { userId } = req.params;
     const enrolledCourses = dao.findCoursesForEnrolledUser();
     res.json(enrolledCourses);
