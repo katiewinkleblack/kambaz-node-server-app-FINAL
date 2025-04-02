@@ -21,6 +21,20 @@ export function findCoursesForEnrolledUser(userId) {
     return newCourse;
   };
 
+  export function editCourse(courseId, updatedCourse) {
+     const { courses } = Database;
+    const course = courses.find((course) => course._id === courseId);
+    Object.assign(course, updatedCourse);
+    return course;
+  };
+
+   export function deleteCourse(courseId) {
+    const { courses } = Database;
+      Database.courses = courses.filter((course) => course._id !== courseId);
+     }
+
+
+
 
   
   

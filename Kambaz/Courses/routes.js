@@ -64,4 +64,19 @@ app.get("/api/courses/:courseId/modules", (req, res) => {
     res.send(newAssignment);
   });
 
+  app.delete("/api/courses/:courseId", async (req, res) => {
+    const { courseId } = req.params;
+    const status = await dao.deleteCourse(courseId);
+    res.send(status);
+ });
+ 
+ app.put("/api/courses/:courseId", async (req, res) => {
+    const { courseId } = req.params;
+    const courseUpdates = req.body;
+    const status = await dao.editCourse(courseId, courseUpdates);
+    res.send(status);
+  });
+
+
+
 }
