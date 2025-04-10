@@ -9,13 +9,18 @@ export default function UserRoutes(app) {
     const userId = req.params.userId;
     const userUpdates = req.body;
 
+    try { 
     await dao.updateUser(userId, userUpdates);
     const currentUser = await dao.findUserById(userId);
     req.session["currentUser"] = currentUser;
     res.json(currentUser);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update,", error});
+    }
   };
 
   const signup = async (req, res) => { 
+  try {
     const user = await dao.findUserByUsername(req.body.username);
     if (user) {
       res.status(400).json(
@@ -25,10 +30,14 @@ export default function UserRoutes(app) {
     const currentUser = await dao.createUser(req.body);   
     req.session["currentUser"] = currentUser;                 
     res.json(currentUser);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to Signup,", error});
+  }
   };
 
   const signin = async (req, res) => {
     const {username, password} = req.body;
+    try {
     const currentUser = await dao.findUserByCredentials(username, password);
     if (currentUser) {
         req.session["currentUser"] = currentUser;
@@ -36,6 +45,9 @@ export default function UserRoutes(app) {
     } else {
         res.status(401).json({ message: "Unable to login. Try again later." });
       }
+    } catch (error) {
+      res.status(500).json({ error: "Failed to update,", error});
+    }
   
    };
 
@@ -80,16 +92,28 @@ export default function UserRoutes(app) {
       }
       userId = currentUser._id;
     }
+
+    try {
     const courses = await courseDao.findCoursesForEnrolledUser(userId);
     res.json(courses);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to Find Course,", error});
+    }
   };
 
-  const createCourse = (req, res) => {
+
+  const createCourse = async (req, res) => {
     const currentUser = req.session["currentUser"];
-    const newCourse = courseDao.createCourse(req.body);
-    enrollmentsDao.enrollUserInCourse(currentUser._id, newCourse._id);
+
+    try {
+    const newCourse = await courseDao.createCourse(req.body);
+    await enrollmentsDao.enrollUserInCourse(currentUser._id, newCourse._id);
     res.json(newCourse);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to Create Course,", error});
+    }
   };
+
 
   app.post("/api/users/current/courses", createCourse);
 
@@ -97,11 +121,45 @@ export default function UserRoutes(app) {
 
   app.get("/api/users/:userId/courses", findCoursesForEnrolledUser);
 
-  app.post("/api/users", dao.createUser);
-  app.get("/api/users", dao.findAllUsers);
-  app.get("/api/users/:userId", dao.findUserById);
+  app.post("/api/users", async (req, res) => {
+    try {
+      const user = await dao.createUser(req.body);
+      res.json(user);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to Post Users,", error});
+    }
+  });
+
+  app.get("/api/users", async (req, res) => {
+    try {
+      const users = await dao.findAllUsers();
+      res.json(users);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to Get Users,", error});
+    }
+  });
+
+  app.get("/api/users/:userId", async (req, res) => {
+    try {
+      const user = await dao.findUserById(req.params.userId);
+      res.json(user);
+    } catch (error) {
+      res.status(500).json({ error: "Failed to Get Users", error});
+    }
+  });
+    
   app.put("/api/users/:userId", updateUser);
-  app.delete("/api/users/:userId", dao.deleteUser);
+
+  app.delete("/api/users/:userId", async (req, res) => {
+  try {
+    await dao.deleteUser(req.params.userId);
+    res.sendStatus(200);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to Delete Users,", error});
+  }
+});
+
+
   app.post("/api/users/signup", signup);
   app.post("/api/users/signin", signin);
   app.post("/api/users/signout", signout);
