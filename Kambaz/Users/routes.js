@@ -6,7 +6,7 @@ import * as enrollmentsDao from "../Enrollments/dao.js";
 export default function UserRoutes(app) {
  
   const updateUser = async (req, res) => { 
-    const userId = req.params.userId;
+    const { username } = req.params;
     const userUpdates = req.body;
 
     try { 
@@ -36,20 +36,35 @@ export default function UserRoutes(app) {
   };
 
   const signin = async (req, res) => {
-    const {username, password} = req.body;
-    try {
-    const currentUser = await dao.findUserByCredentials(username, password);
-    if (currentUser) {
-        req.session["currentUser"] = currentUser;
-        res.json(currentUser);
-    } else {
-        res.status(401).json({ message: "Unable to login. Try again later." });
-      }
-    } catch (error) {
-      res.status(500).json({ error: "Failed to update,", error});
+    const { username, password } = req.body;
+  const userDoc = await dao.findUserByCredentials(username, password);
+  console.log("🔍 Raw userDoc:", userDoc);
+
+
+  if (!userDoc) {
+    return res.status(401).json({ error: "Invalid credentials" });
+  }
+  const user = {
+    ...userDoc.toObject(),
+    _id: userDoc._id?.toString() || null, 
+  };
+
+  console.log("✅ currentUser ID:", user._id);
+
+  console.log("Logged in user:", user);
+
+  req.session["currentUser"] = user;
+
+  req.session.save((err) => {
+    if (err) {
+      console.error("Error saving session:", err);
+      return res.status(500).json({ error: "Session save failed" });
     }
-  
-   };
+
+    console.log("💾 Session saved");
+    res.json(user);
+  });
+};
 
 
   const signout = async (req, res) => {
@@ -59,28 +74,24 @@ export default function UserRoutes(app) {
 
 
    const profile = async (req, res) => {
-      const currentUser = await req.session["currentUser"];
+    console.log("/api/users/profile HIT");
+  console.log("Session:", req.session);
+  console.log("Current user in session:", req.session["currentUser"]);
 
-    if (!currentUser) {
-      console.log("ERROR")
-      return res.status(401).json({ error: "No active session. Please log in." });
-    
-    }
+  const currentUser = req.session["currentUser"];
 
-  try {
-    const userProfile = await dao.findUserById(currentUser._id);
-
-    if (!userProfile) {
-      return res.status(404).json({ error: "User Not Found" });
-    }
-    res.json(userProfile);
-  } catch (error) {
-    return res.status(500).json({ error: "Internal Service Problem" });
+  if (!currentUser) {
+    console.log("No currentUser in session");
+    return res.status(401).json({ error: "No active session" });
   }
 
-   
-  };
+  const userProfile = await dao.findUserById(currentUser._id);
+
+
+  res.json(userProfile);
   
+   };
+
 
    const findCoursesForEnrolledUser = async (req, res) => {
     let { userId } = req.params;
@@ -108,6 +119,7 @@ export default function UserRoutes(app) {
     try {
     const newCourse = await courseDao.createCourse(req.body);
     await enrollmentsDao.enrollUserInCourse(currentUser._id, newCourse._id);
+    
     res.json(newCourse);
     } catch (error) {
       res.status(500).json({ error: "Failed to Create Course,", error});
@@ -117,13 +129,17 @@ export default function UserRoutes(app) {
 
   app.post("/api/users/current/courses", createCourse);
 
-
+ 
 
   app.get("/api/users/:userId/courses", findCoursesForEnrolledUser);
 
   app.post("/api/users", async (req, res) => {
     try {
+      const userData = {...req.body};
+      delete userData._id;
+
       const user = await dao.createUser(req.body);
+      
       res.json(user);
     } catch (error) {
       res.status(500).json({ error: "Failed to Post Users,", error});
@@ -152,7 +168,9 @@ export default function UserRoutes(app) {
 
   app.delete("/api/users/:userId", async (req, res) => {
   try {
-    await dao.deleteUser(req.params.userId);
+    const { id } = req.params;
+    console.log(id);
+    await dao.deleteUser(id);
     res.sendStatus(200);
   } catch (error) {
     res.status(500).json({ error: "Failed to Delete Users,", error});
@@ -165,4 +183,5 @@ export default function UserRoutes(app) {
   app.post("/api/users/signout", signout);
 
   app.post("/api/users/profile", profile);
+  console.log("🔥 /api/users/profile was hit");
 }

@@ -7,50 +7,49 @@ import * as AssignmentDao from "../Assignments/dao.js";
 export default function CourseRoutes(app) {
 
  
-
-  app.get("/api/courses", (req, res) => {
-    const courses = dao.findAllCourses();
+  app.get("/api/courses", async (req, res) => {
+    const courses = await dao.findAllCourses();
     res.send(courses);
   });
 
-app.get("api/users.:userId/courses", (req, res) => {
+app.get("api/users/:userId/courses", async (req, res) => {
     const { userId } = req.params;
-    const enrolledCourses = dao.findCoursesForEnrolledUser();
+    console.log("📥 Received userId for course fetch:", userId);
+    const enrolledCourses = await dao.findCoursesForEnrolledUser(userId);
     res.json(enrolledCourses);
 });
 
-app.post("/api/courses", (req, res) => {
-    const newCourse = dao.createCourse(req.body);
+app.post("/api/courses", async (req, res) => {
+    const newCourse = await dao.createCourse(req.body);
     res.json(newCourse);
 })
 
-app.get("/api/courses/:courseId/modules", (req, res) => {
+app.get("/api/courses/:courseId/modules", async (req, res) => {
     const { courseId } = req.params;
-    const modules = modulesDao.findModulesForCourse(courseId);
+    const modules = await modulesDao.findModulesForCourse(courseId);
     res.json(modules);
   });
 
-  app.get("/api/courses/:courseId/assignments", (req, res) => {
+  app.get("/api/courses/:courseId/assignments", async (req, res) => {
     const { courseId } = req.params;
-    const assignments = AssignmentDao.findAssignmentsForCourse(courseId);
+    const assignments = await AssignmentDao.findAssignmentsForCourse(courseId);
     res.json(assignments);
   });
 
 
 
-  app.post("/api/courses/:courseId/modules", (req, res) => {
+  app.post("/api/courses/:courseId/modules", async (req, res) => {
     const { courseId } = req.params;
     const module = {
       ...req.body,
       course: courseId,
     };
-    const newModule = modulesDao.createModule(module);
+    const newModule = await modulesDao.createModule(module);
     console.log("✅ Created module:", newModule);
-    console.log("📂 Database modules:", Database.modules); 
     res.send(newModule);
   });
 
-  app.post("/api/courses/:courseId/assignments", (req, res) => {
+  app.post("/api/courses/:courseId/assignments", async (req, res) => {
     const { courseId } = req.params;
     const assignment = {
       ...req.body,
@@ -58,7 +57,7 @@ app.get("/api/courses/:courseId/modules", (req, res) => {
     };
     console.log("Received Assignment:", assignment); 
 
-    const newAssignment = AssignmentDao.createAssignment(assignment);
+    const newAssignment = await AssignmentDao.createAssignment(assignment);
     console.log("Created Assignment:", newAssignment); 
 
     res.send(newAssignment);

@@ -1,37 +1,51 @@
 
 import Database from "../Database/index.js";
 import { v4 as uuidv4 } from "uuid";
+import courseModel from "./model.js";
+import enrollmentModel from "../Enrollments/model.js";
 
 
-export function findAllCourses() {
-  return Database.courses;
-}
+export const findAllCourses = () =>
+   courseModel.find();
 
-export function findCoursesForEnrolledUser(userId) {
-    const { courses, enrollments } = Database;
-    const enrolledCourses = courses.filter((course) =>
-      enrollments.some((enrollment) => enrollment.user === userId 
-    && enrollment.course === course._id));
-    return enrolledCourses;
+export const findCourseById = (id) =>
+  courseModel.findById(id);
+
+export const findCourseByDepartment = (department) =>
+  courseModel.find({department});
+
+export const findCourseByInstructor = (instructor) =>
+  courseModel.find({instructor})
+
+
+export const findCoursesForEnrolledUser = async (userId) => {
+  try {
+    const userObjectId = new mongoose.Types.ObjectId(userId);
+    const enrollments = await enrollmentModel
+      .find({ user: userObjectId })
+      .populate("course");
+
+    return enrollments.map((e) => e.course);
+  } catch (err) {
+    console.error("❌ Error in findCoursesForEnrolledUser:", err);
+    throw err;
   }
+};
 
-  export function createCourse(course) {
-    const newCourse = { ...course, _id: uuidv4() };
-    Database.courses = [...Database.courses, newCourse];
-    return newCourse;
-  };
+  export const createCourse = (course) => courseModel.create(course);
 
-  export function editCourse(courseId, updatedCourse) {
-     const { courses } = Database;
-    const course = courses.find((course) => course._id === courseId);
-    Object.assign(course, updatedCourse);
-    return course;
-  };
+  export const updateCourse = (id, course) =>
+    courseModel.updateOne({_id: id}, {$set: course}).lean();
 
-   export function deleteCourse(courseId) {
-    const { courses } = Database;
-      Database.courses = courses.filter((course) => course._id !== courseId);
-     }
+  //export function editCourse(courseId, updatedCourse) {
+     //const { courses } = Database;
+    //const course = courses.find((course) => course._id === courseId);
+    //Object.assign(course, updatedCourse);
+   // return course;
+  //};
+
+   export const deleteCourse = (id) => courseModel.deleteOne({_id: id});
+ 
 
 
 

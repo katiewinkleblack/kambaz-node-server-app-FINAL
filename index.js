@@ -20,11 +20,13 @@ mongoose.connect(CONNECTION_STRING)
 .catch((err) => console.error('MongoDB connection error:', err));
 
 
-const app = express()
+const app = express();
+app.use(express.json());
+
 app.use(
     cors({
         credentials: true,
-        origin: [ process.env.NETLIFY_URL, "https://a5--kanbaz-react-web-app-cs4550-sp25.netlify.app" ],
+        origin: [ "http://localhost:5174"],
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
     })
@@ -43,7 +45,6 @@ const sessionOptions = {
     };
   }
   app.use(session(sessionOptions));
-  app.use(express.json());
   
 Lab5(app);
 Hello(app);
@@ -54,4 +55,5 @@ AssignmentRoutes(app);
 EnrollmentRoutes(app);
 PeopleRoutes(app);
 
-app.listen(process.env.PORT || 4000)
+app.listen(process.env.PORT || 4000);
+console.log("NODE_ENV =", process.env.NODE_ENV);
