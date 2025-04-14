@@ -62,6 +62,8 @@ export default function UserRoutes(app) {
 
   const signin = async (req, res) => {
     const { username, password } = req.body;
+    console.log("SIGNIN ATTEMPT:", username, password);
+
   const userDoc = await dao.findUserByCredentials(username, password);
   console.log("🔍 Raw userDoc:", userDoc);
 
