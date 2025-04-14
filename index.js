@@ -23,9 +23,9 @@ mongoose.connect(CONNECTION_STRING)
   console.log('Connected to MongoDB successfully')
 const testUser = await dao.findUserByCredentials("dark_knight", "wayne123");
 if (testUser) {
-  console.log("🧪 Found test user in database:", testUser.username);
+  console.log("Found test user in databases", testUser.username);
 } else {
-  console.log("❌ Could NOT find 'dark_knight' in connected database.");
+  console.log("Could NOT find 'dark_knight' in connected database.");
 }
 });
 
