@@ -11,6 +11,7 @@ import EnrollmentRoutes from './Kambaz/Enrollments/routes.js';
 import PeopleRoutes from './Kambaz/People/routes.js';
 import mongoose from 'mongoose';
 import MongoStore from "connect-mongo";
+import * as dao from "./Kambaz/Users/dao.js";
 
 
 import dotenv from "dotenv"; 
@@ -18,9 +19,15 @@ dotenv.config();
 
 const CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING;
 mongoose.connect(CONNECTION_STRING)
-.then(() => console.log('Connected to MongoDB successfully'))
-.catch((err) => console.error('MongoDB connection error:', err));
-
+.then(async () => {
+  console.log('Connected to MongoDB successfully')
+const testUser = await dao.findUserByCredentials("dark_knight", "wayne123");
+if (testUser) {
+  console.log("🧪 Found test user in database:", testUser.username);
+} else {
+  console.log("❌ Could NOT find 'dark_knight' in connected database.");
+}
+});
 
 const app = express();
 app.use(express.json());
