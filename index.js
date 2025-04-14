@@ -28,7 +28,7 @@ app.use(express.json());
 app.use(
     cors({
         credentials: true,
-        origin: [ "http://localhost:5174", "https://a6--kanbaz-react-web-app-cs4550-sp25.netlify.app/"],
+        origin: [ "http://localhost:5174", "https://a6--kanbaz-react-web-app-cs4550-sp25.netlify.app"],
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
     })
