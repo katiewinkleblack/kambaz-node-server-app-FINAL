@@ -2,11 +2,16 @@ import * as dao from "./dao.js";
 
 export default function EnrollmentRoutes(app) {
 
-app.post("/api/enrollments/:userId/courses/:courseId/enroll", async (req, res) => {
+app.post("/api/enrollments/:username/courses/:courseId/enroll", async (req, res) => {
     const { userId, courseId } = req.params;
     
     try {
+        console.log("🟢 Received enrollment request:", { username, courseId });
+
         const enrollment = await dao.enrollUserInCourse(userId, courseId);
+
+        console.log("✅ Enrollment saved:", result);
+
         res.json(enrollment);
 } catch (error) {
     console.error("Error enrolled:", userId);
@@ -14,7 +19,7 @@ app.post("/api/enrollments/:userId/courses/:courseId/enroll", async (req, res) =
 }
 });
 
-app.delete("/api/enrollments/:userId/courses/:courseId/unEnroll", async (req, res) => {
+app.delete("/api/enrollments/:username/courses/:courseId/unEnroll", async (req, res) => {
     const { userId , courseId } = req.params;
 
     try {
@@ -32,15 +37,11 @@ app.delete("/api/enrollments/:userId/courses/:courseId/unEnroll", async (req, re
 });
 
 
-
-app.get("/api/users/:userId/courses", async (req, res) => {
-    const { userId } = req.params;
-    try {
-      const courses = await dao.findCoursesForEnrolledUser(userId);
-      res.json(courses);
-    } catch (err) {
-      res.status(500).json({ error: "Failed to retrieve enrolled courses" });
-    }
+  app.get("/api/enrollments", async (req, res) => {
+    const courses = await dao.findEnrollements();
+    console.log(courses);
+    res.send(courses);
   });
+
+
 };
-  

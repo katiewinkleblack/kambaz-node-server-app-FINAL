@@ -4,12 +4,10 @@ import enrollmentModel from "./model.js";
 
 
 export async function enrollUserInCourse(userId, courseId) {
-  const userObjectId = new mongoose.Types.ObjectId(userId);
-  const courseObjectId = new mongoose.Types.ObjectId(courseId);
 
   
   const existing = await enrollmentModel.findOne({
-    user: userObjectId,
+    user: userId,
     course: courseObjectId,
   });
 
@@ -19,7 +17,7 @@ export async function enrollUserInCourse(userId, courseId) {
   }
 
   const enrollment = await enrollmentModel.create({
-    user: userObjectId,
+    user: username,
     course: courseObjectId,
   });
   return enrollment
@@ -28,11 +26,9 @@ export async function enrollUserInCourse(userId, courseId) {
 
 
 export async function unEnrollInCourse (userId, courseId) {
-  const userObjectId = new mongoose.Types.ObjectId(userId);
-  const courseObjectId = new mongoose.Types.ObjectId(courseId);
   
   const result = await enrollmentModel.deletOne({
-    user: userObjectId,
+    user: userId,
     course: courseObjectId,
   });
 
@@ -45,11 +41,13 @@ export async function unEnrollInCourse (userId, courseId) {
   return result;
 };
 
-export async function findEnrolledCourses (userId) {
-  const userObjectId = new mongoose.Types.ObjectId(userId);
+export async function findEnrolledCourses (username) {
   
   const enrollments = await enrollmentModel.find({
-    user: userObjectId }).populate("course");
+    user: username }).populate("course");
 
     return enrollments.map((e) => e.course);
   };
+
+  export const findEnrollements = () =>
+    enrollmentModel.find();

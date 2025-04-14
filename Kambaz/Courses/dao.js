@@ -18,12 +18,12 @@ export const findCourseByInstructor = (instructor) =>
   courseModel.find({instructor})
 
 
-export const findCoursesForEnrolledUser = async (userId) => {
+export const findCoursesForEnrolledUsers = async (username) => {
   try {
-    const userObjectId = new mongoose.Types.ObjectId(userId);
     const enrollments = await enrollmentModel
-      .find({ user: userObjectId })
+      .find({ user: username })
       .populate("course");
+      console.log(enrollments);
 
     return enrollments.map((e) => e.course);
   } catch (err) {

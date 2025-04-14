@@ -4,20 +4,45 @@ import * as courseDao from "../Courses/dao.js";
 import * as enrollmentsDao from "../Enrollments/dao.js";
 
 export default function UserRoutes(app) {
+
+  const findAllUsers = async (req, res) => {
+    const { role, name } = req.query;
+    if (role) {
+      const users = await dao.findUsersByRole(role);
+      res.json(users);
+      return;
+    }
+    if (name) {
+      const users = await dao.findUsersByPartialName(name);
+      res.json(users);
+      return;
+    }
+    const users = await dao.findAllUsers();
+    res.json(users);
+  };
+
+  app.get("/api/users", findAllUsers);
+
+
  
   const updateUser = async (req, res) => { 
     const { username } = req.params;
     const userUpdates = req.body;
 
     try { 
-    await dao.updateUser(userId, userUpdates);
-    const currentUser = await dao.findUserById(userId);
-    req.session["currentUser"] = currentUser;
+    await dao.updateUser(username, userUpdates);
+    const currentUser = req.session["currentUser"];
+   
+    if (currentUser && currentUser.username === username) {
+      req.session["currentUser"] = { ...currrentUser, ...userUpdates}
+    }
     res.json(currentUser);
+  
     } catch (error) {
       res.status(500).json({ error: "Failed to update,", error});
     }
   };
+
 
   const signup = async (req, res) => { 
   try {
@@ -46,10 +71,9 @@ export default function UserRoutes(app) {
   }
   const user = {
     ...userDoc.toObject(),
-    _id: userDoc._id?.toString() || null, 
   };
 
-  console.log("✅ currentUser ID:", user._id);
+  console.log("✅ currentUser ID:", user.username);
 
   console.log("Logged in user:", user);
 
@@ -85,7 +109,7 @@ export default function UserRoutes(app) {
     return res.status(401).json({ error: "No active session" });
   }
 
-  const userProfile = await dao.findUserById(currentUser._id);
+  const userProfile = await dao.findUserByUsername(currentUser.username);
 
 
   res.json(userProfile);
@@ -94,18 +118,19 @@ export default function UserRoutes(app) {
 
 
    const findCoursesForEnrolledUser = async (req, res) => {
-    let { userId } = req.params;
-    if (userId === "current") {
+    let { username } = req.params;
+    console.log(username);
+    if (username === "current") {
       const currentUser = await req.session["currentUser"];
       if (!currentUser) {
         res.sendStatus(401);
         return;
       }
-      userId = currentUser._id;
+      username = currentUser.username;
     }
 
     try {
-    const courses = await courseDao.findCoursesForEnrolledUser(userId);
+    const courses = await courseDao.findCoursesForEnrolledUsers(username);
     res.json(courses);
     } catch (error) {
       res.status(500).json({ error: "Failed to Find Course,", error});
@@ -118,7 +143,7 @@ export default function UserRoutes(app) {
 
     try {
     const newCourse = await courseDao.createCourse(req.body);
-    await enrollmentsDao.enrollUserInCourse(currentUser._id, newCourse._id);
+    await enrollmentsDao.enrollUserInCourse(currentUser.username, newCourse._id);
     
     res.json(newCourse);
     } catch (error) {
@@ -131,14 +156,14 @@ export default function UserRoutes(app) {
 
  
 
-  app.get("/api/users/:userId/courses", findCoursesForEnrolledUser);
+  app.get("/api/users/:username/courses", findCoursesForEnrolledUser);
 
   app.post("/api/users", async (req, res) => {
     try {
       const userData = {...req.body};
       delete userData._id;
 
-      const user = await dao.createUser(req.body);
+      const user = await dao.createUser(userData);
       
       res.json(user);
     } catch (error) {
@@ -155,22 +180,29 @@ export default function UserRoutes(app) {
     }
   });
 
-  app.get("/api/users/:userId", async (req, res) => {
+  app.get("/api/users/:username", async (req, res) => {
     try {
-      const user = await dao.findUserById(req.params.userId);
+      const user = await dao.findUserByUsername(req.params.username);
       res.json(user);
     } catch (error) {
       res.status(500).json({ error: "Failed to Get Users", error});
     }
   });
-    
-  app.put("/api/users/:userId", updateUser);
 
-  app.delete("/api/users/:userId", async (req, res) => {
+  const findUserByUsername = async (req, res) => {
+    const user = await dao.findUserByUsername(req.params.userId);
+    res.json(user);
+  };
+
+  app.get("/api/users/:userId", findUserByUsername);
+    
+  app.put("/api/users/:username", updateUser);
+
+  app.delete("/api/users/:username", async (req, res) => {
   try {
-    const { id } = req.params;
-    console.log(id);
-    await dao.deleteUser(id);
+    const { username } = req.params;
+    console.log(username);
+    await dao.deleteUser(username);
     res.sendStatus(200);
   } catch (error) {
     res.status(500).json({ error: "Failed to Delete Users,", error});
@@ -183,5 +215,17 @@ export default function UserRoutes(app) {
   app.post("/api/users/signout", signout);
 
   app.post("/api/users/profile", profile);
-  console.log("🔥 /api/users/profile was hit");
+
+app.get("/api/users/search", async (req, res) => {
+  const { firstName, lastName } = req.query;
+  console.log("🔍 Searching for:", firstName, lastName); 
+  const user = await dao.findUserByFullName(firstName, lastName);
+  if (!user) {
+    return res.status(404).json({ error: "User not found" });
+  }
+  res.json(user);
+});
+
+
+
 }

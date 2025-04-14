@@ -1,15 +1,16 @@
-// enrollmentSchema.js
+import "../Courses/model.js";
+import "../Users/model.js";
 import mongoose from "mongoose";
 
 const enrollmentSchema = new mongoose.Schema(
   {
     user: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "UserModel", 
-      required: true,
-    },
+        type: String,
+        ref: "UserModel",
+        required: true,
+      },
     course: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "CourseModel",
       required: true,
     },
