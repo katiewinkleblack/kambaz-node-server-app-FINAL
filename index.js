@@ -28,27 +28,24 @@ app.use(express.json());
 app.use(
     cors({
         credentials: true,
-        origin: [ "http://localhost:5174", "https://a6--kanbaz-react-web-app-cs4550-sp25.netlify.app"],
+        origin: [ process.env.NETLIFY_URL, "https://a6--kanbaz-react-web-app-cs4550-sp25.netlify.app"],
         methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
     })
 );
 const sessionOptions = {
-    secret: process.env.SESSION_SECRET || "kambaz",
-    resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-      mongoUrl: process.env.MONGO_CONNECTION_STRING,
-      collectionName: 'sessions',
-    }
-    )
-  ,
-  cookie: {
-    secure: true,
+  secret: process.env.SESSION_SECRET || "kambaz",
+  resave: false,
+  saveUninitialized: false,
+};
+if (process.env.NODE_ENV !== "production") {
+  sessionOptions.proxy = true;
+  sessionOptions.cookie = {
     sameSite: "none",
-    maxAge: 1000 * 60 * 60 * 24,
-  }
-  }
+    secure: true,
+    domain: process.env.NODE_SERVER_DOMAIN,
+  };
+}
   app.use(session(sessionOptions));
   
 Lab5(app);
