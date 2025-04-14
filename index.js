@@ -16,7 +16,7 @@ import MongoStore from "connect-mongo";
 import dotenv from "dotenv"; 
 dotenv.config(); 
 
-const CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING || "mongodb+srv://kmwink21:Volleyball5@kambaz.llbfz1v.mongodb.net/";
+const CONNECTION_STRING = process.env.MONGO_CONNECTION_STRING || "mongodb://127.0.0.1:27017/kambaz";
 mongoose.connect(CONNECTION_STRING)
 .then(() => console.log('Connected to MongoDB successfully'))
 .catch((err) => console.error('MongoDB connection error:', err));
