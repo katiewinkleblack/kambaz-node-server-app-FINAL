@@ -13,4 +13,4 @@ const assignmentSchema = new mongoose.Schema({
   collection: "assignments" 
 });
 
-export default mongoose.model("Assignment", assignmentSchema);
+export default assignmentSchema;
