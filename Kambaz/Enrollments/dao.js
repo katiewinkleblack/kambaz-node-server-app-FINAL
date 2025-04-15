@@ -4,7 +4,7 @@ import enrollmentModel from "./model.js";
 
 
 export async function enrollUserInCourse(userId, courseId) {
-
+  const courseObjectId = new mongoose.Types.ObjectId(courseId);
   
   const existing = await enrollmentModel.findOne({
     user: userId,
@@ -26,6 +26,7 @@ export async function enrollUserInCourse(userId, courseId) {
 
 
 export async function unEnrollInCourse (userId, courseId) {
+  const courseObjectId = new mongoose.Types.ObjectId(courseId);
   
   const result = await enrollmentModel.deletOne({
     user: userId,
