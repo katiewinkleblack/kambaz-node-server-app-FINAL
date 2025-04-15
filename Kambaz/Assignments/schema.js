@@ -1,16 +1,19 @@
+i// Kambaz/Assignments/schema.js
 import mongoose from "mongoose";
 
-const assignmentSchema = new mongoose.Schema({
+const schema = new mongoose.Schema({
+  _id: String,
+  title: String,
+  points: Number,
+  availMonth: String,
+  availDate: String,
+  availTime: String,
+  dueMonth: String,
+  dueDate: String,
+  dueTime: String,
+  editorAvail: String,
+  editorDue: String,
+  course: { type: String, ref: "CourseModel" },
+}, { collection: "assignments" });
 
-    _id: String,
-    title: String,
-    
-  course: {
-    type: String,
-    ref: "CourseModel", 
-  }
-}, {
-  collection: "assignments" 
-});
-
-export default assignmentSchema;
+export default schema;
