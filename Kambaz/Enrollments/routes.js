@@ -10,7 +10,7 @@ app.post("/api/enrollments/:username/courses/:courseId/enroll", async (req, res)
 
         const enrollment = await dao.enrollUserInCourse(username, courseId);
 
-        console.log("✅ Enrollment saved:", result);
+        console.log("✅ Enrollment saved:", enrollment);
 
         res.json(enrollment);
 } catch (error) {
