@@ -16,14 +16,19 @@ export default function CourseRoutes(app) {
 app.get("api/users/:username/courses", async (req, res) => {
     const { username } = req.params;
     console.log("📥 Received userId for course fetch:", username);
-    const enrolledCourses = await dao.findCoursesForEnrolledUser(username);
+    const enrolledCourses = await dao.findCoursesForEnrolledUsers(username);
     res.json(enrolledCourses);
 });
 
 app.post("/api/courses", async (req, res) => {
-    const newCourse = await dao.createCourse(req.body);
-   
+
+  try {
+    const newCourse = await dao.createCourse(req.body); 
     res.json(newCourse);
+  } catch (error) {
+    console.error("Error creating course" , error);
+    res.status(500).json({ error: "Failed to create course" });
+  }
 })
 
 app.get("/api/courses/:courseId/modules", async (req, res) => {
