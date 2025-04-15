@@ -28,7 +28,7 @@ export async function enrollUserInCourse(userId, courseId) {
 export async function unEnrollInCourse (userId, courseId) {
   const courseObjectId = new mongoose.Types.ObjectId(courseId);
   
-  const result = await enrollmentModel.deletOne({
+  const result = await enrollmentModel.deleteOne({
     user: userId,
     course: courseObjectId,
   });
