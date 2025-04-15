@@ -27,7 +27,7 @@ app.post("/api/courses", async (req, res) => {
     const newCourse = await dao.createCourse(req.body); 
     const currentUser = req.session["currentUser"];
     if (currentUser) {
-      await enrollmentDao.enrollUserInCourse(currentUser.username, course._id);
+      await enrollmentDao.enrollUserInCourse(currentUser.username, newCourse._id);
     }
     res.json(newCourse);
   } catch (error) {
