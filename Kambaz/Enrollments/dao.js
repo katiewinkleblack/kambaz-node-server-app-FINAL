@@ -13,7 +13,7 @@ const courseDoc = await courseModel.findById(course);
 
   
   const existing = await enrollmentModel.findOne({
-    user: userDoc.username,
+    user: userDoc._id,
     course: courseDoc._id,
   });
 
@@ -23,8 +23,8 @@ const courseDoc = await courseModel.findById(course);
   }
 
   const enrollment = await enrollmentModel.create({ 
-    _id:`${user}-${courseObjectId}`, 
-    user: userDoc.username, 
+    _id:`${userDoc._id}-${courseDoc._id}`, 
+    user: userDoc._id, 
     course: userDoc._id,
    });
   return enrollment
