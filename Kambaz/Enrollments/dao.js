@@ -5,10 +5,16 @@ import enrollmentModel from "./model.js";
 
 export async function enrollUserInCourse(user, course) {
   const courseObjectId = new mongoose.Types.ObjectId(course);
+  const userDoc = await userModel.findOne({ username: user });
+    if (!userDoc) throw new Error("User not found");
+
+const courseDoc = await courseModel.findById(course);
+      if (!courseDoc) throw new Error("Course not found");
+
   
   const existing = await enrollmentModel.findOne({
-    user: user,
-    course: courseObjectId,
+    user: userDoc.username,
+    course: courseDoc._id,
   });
 
   if (existing) {
@@ -17,7 +23,10 @@ export async function enrollUserInCourse(user, course) {
   }
 
   const enrollment = await enrollmentModel.create({ 
-    user, course, _id: `${user}-${courseObjectId}` });
+    _id:`${user}-${courseObjectId}`, 
+    user: userDoc.username, 
+    course: userDoc._id,
+   });
   return enrollment
 };
 
@@ -34,7 +43,7 @@ export async function unEnrollInCourse (user, course) {
     console.log(`Could not unenroll ${user}`);
   }
   else {
-    console(`Un-enrolled ${user}`);
+    console.log(`Un-enrolled ${user}`);
   }
   return result;
 };
