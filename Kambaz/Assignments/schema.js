@@ -1,4 +1,4 @@
-i// Kambaz/Assignments/schema.js
+
 import mongoose from "mongoose";
 
 const schema = new mongoose.Schema({
