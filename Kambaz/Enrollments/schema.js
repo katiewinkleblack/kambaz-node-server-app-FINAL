@@ -14,11 +14,15 @@ const enrollmentSchema = new mongoose.Schema(
       ref: "CourseModel",
       required: true,
     },
-    enrolledOn: {
-      type: Date,
-      default: Date.now,
+    grade: Number,
+    letterGrade: String,
+    enrollmentDate: Date,
+    status: {
+      type: String,
+      enum: ["ENROLLED", "DROPPED", "COMPLETED"],
+      default: "ENROLLED",
     },
-  },
+  }, 
   { collection: "enrollments" }
 );
 

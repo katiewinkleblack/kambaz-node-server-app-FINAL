@@ -229,5 +229,23 @@ app.get("/api/users/search", async (req, res) => {
 });
 
 
-
+const findCoursesForUser = async (req, res) => {
+  const currentUser = req.session["currentUser"];
+  if (!currentUser) {
+    res.sendStatus(401);
+    return;
+  }
+  if (currentUser.role === "ADMIN") {
+    const courses = await courseDao.findAllCourses();
+    res.json(courses);
+    return;
+  }
+  let { username } = req.params;
+  if (username === "current") {
+    username = currentUser.username;
+  }
+  const courses = await enrollmentsDao.findCoursesForUser(username);
+  res.json(courses);
+};
+app.get("/api/users/:username/courses", findCoursesForUser);
 }
