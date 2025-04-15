@@ -4,10 +4,11 @@ import enrollmentModel from "./model.js";
 
 
 export async function enrollUserInCourse(user, course) {
+  const courseObjectId = new mongoose.Types.ObjectId(course);
   
   const existing = await enrollmentModel.findOne({
     user: user,
-    course: course,
+    course: courseObjectId,
   });
 
   if (existing) {
@@ -16,16 +17,17 @@ export async function enrollUserInCourse(user, course) {
   }
 
   const enrollment = await enrollmentModel.create({ 
-    user, course, _id: `${user}-${course}` });
+    user, course, _id: `${user}-${courseObjectId}` });
   return enrollment
 };
 
 
 export async function unEnrollInCourse (user, course) {
+  const courseObjectId = new mongoose.Types.ObjectId(course);
   
   const result = await enrollmentModel.deleteOne({
     user: user,
-    course: course,
+    course: courseObjectId,
   });
 
   if (result.deletedCount === 0) {
