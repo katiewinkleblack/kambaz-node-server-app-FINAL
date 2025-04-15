@@ -3,12 +3,12 @@ import assignmentModel, * as AssignmentModel from "./model.js";
 
 
 export function findAssignmentsForCourse(courseId) {
-  return AssignmentModel.find({ courseId});
+  return assignmentModel.find({ courseId});
 }
 
 export function createAssignment(assignment) {
     const newAssignment = { ...assignment, _id: uuidv4() };
-    return AssignmentModel.createAssignment(newAssignment);
+    return assignmentModel.createAssignment(newAssignment);
   }
 
   export function deleteAssignment(aid) {
